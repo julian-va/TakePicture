@@ -1,11 +1,7 @@
 package com.example.simpleprueba.view.home
 
 import android.Manifest
-import android.view.ViewGroup
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.LifecycleCameraController
-import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -21,18 +17,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
+import com.example.simpleprueba.data.HomeViewModel
+import com.example.simpleprueba.view.composables.CameraComposable
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import java.io.File
-import java.util.concurrent.Executor
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(homeViewModel: HomeViewModel = HomeViewModel()) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
     val executor = ContextCompat.getMainExecutor(context)
@@ -48,7 +42,7 @@ fun HomeScreen() {
     Scaffold(modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                takePicture(cameraController = cameraController, executor = executor)
+                homeViewModel.takePicture(cameraController = cameraController, executor = executor)
             }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "take picture")
             }
@@ -67,40 +61,3 @@ fun HomeScreen() {
     }
 }
 
-@Composable
-fun CameraComposable(
-    modifier: Modifier = Modifier,
-    cameraController: LifecycleCameraController,
-    lifecycle: LifecycleOwner
-): Unit {
-
-    cameraController.bindToLifecycle(lifecycle)
-    Text(text = "Permiso comcedido")
-    AndroidView(modifier = modifier, factory = { context ->
-        val previewView = PreviewView(context).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-            )
-        }
-        previewView.controller = cameraController
-        previewView
-    })
-}
-
-private fun takePicture(cameraController: LifecycleCameraController, executor: Executor) {
-    val file = File.createTempFile("imagentest", ".jpg")
-    val outputDirectory = ImageCapture.OutputFileOptions.Builder(file).build()
-    cameraController.takePicture(
-        outputDirectory,
-        executor,
-        object : ImageCapture.OnImageSavedCallback {
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                println(outputFileResults.savedUri)
-            }
-
-            override fun onError(exception: ImageCaptureException) {
-                println("succeed error!!")
-            }
-        })
-}
