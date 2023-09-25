@@ -26,7 +26,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel = HomeViewModel()) {
+fun HomeScreen(homeViewModel: HomeViewModel) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
     val executor = ContextCompat.getMainExecutor(context)
